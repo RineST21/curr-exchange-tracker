@@ -57,9 +57,12 @@ Zaawansowana aplikacja webowa Flask do monitorowania i analizowania kursów walu
 ├── schema.sql            # Schemat bazy danych SQLite
 ├── requirements.txt      # Zależności Python
 ├── README.md            # Dokumentacja projektu
+├── README_eng.md        # Dokumentacja projektu (angielski)
 ├── check_db.py          # Skrypt do sprawdzania zawartości bazy danych
 ├── debug_check.py       # Plik pomocniczy do debugowania
 ├── currency_rates.db    # Baza danych SQLite (tworzona automatycznie)
+├── static/
+│   └── style.css        # Arkusz stylów CSS
 └── templates/
     └── index.html       # Szablon HTML z interaktywnym interfejsem
 ```
@@ -67,11 +70,9 @@ Zaawansowana aplikacja webowa Flask do monitorowania i analizowania kursów walu
 ## Dostępne Endpointy API
 
 - `/` - Główna strona z wykresami kursów walut
-- `/update_rates` - Aktualizacja kursów średnich (tabela A NBP)
-- `/update_rates_bid_ask` - Aktualizacja kursów kupna/sprzedaży (tabela C NBP)
-- `/update_historical_rates` - Pobieranie danych historycznych (ostatnie 30 dni)
-- `/update_historical_rates_bid_ask` - Pobieranie historycznych kursów bid/ask
-- `/check_and_fetch_data` - Sprawdzenie i pobranie brakujących danych
+- `/check_and_fetch_data` - Sprawdzenie i pobranie brakujących danych (opcjonalne)
+
+**Uwaga**: Aplikacja automatycznie pobiera i aktualizuje dane przy każdym uruchomieniu, więc ręczna aktualizacja zazwyczaj nie jest potrzebna.
 
 ## Obsługiwane Waluty
 

@@ -61,6 +61,8 @@ An advanced Flask web application for monitoring and analyzing currency exchange
 ├── check_db.py          # Script to check database content
 ├── debug_check.py       # Helper file for debugging
 ├── currency_rates.db    # SQLite database (created automatically)
+├── static/
+│   └── style.css        # CSS stylesheet
 └── templates/
     └── index.html       # HTML template with interactive interface
 ```
@@ -68,11 +70,9 @@ An advanced Flask web application for monitoring and analyzing currency exchange
 ## Available API Endpoints
 
 - `/` - Main page with currency exchange rate charts
-- `/update_rates` - Update average exchange rates (NBP table A)
-- `/update_rates_bid_ask` - Update buy/sell rates (NBP table C)
-- `/update_historical_rates` - Download historical data (last 30 days)
-- `/update_historical_rates_bid_ask` - Download historical bid/ask rates
-- `/check_and_fetch_data` - Check and download missing data
+- `/check_and_fetch_data` - Check and download missing data (optional)
+
+**Note**: The application automatically downloads and updates data on each startup, so manual updates are usually not needed.
 
 ## Supported Currencies
 

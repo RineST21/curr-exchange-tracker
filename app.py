@@ -1,14 +1,8 @@
 import sqlite3
 import requests
 import json
-from flask import Flask, render_template, jsonify, g, request # Added request
+from flask import Flask, render_template, jsonify, g, request
 from datetime import datetime, timedelta
-import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend for web applications
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates # For formatting dates on the plot
-import io
-import base64
 
 app = Flask(__name__)
 
@@ -183,8 +177,7 @@ def store_rates_bid_ask(rates, effective_date):
         print(f"Data for {effective_date} already exists. Skipping insertion.")
         return
     for rate in rates:
-        try:
-            cursor.execute('''
+        try:            cursor.execute('''
                 INSERT INTO rates (currency_code, currency_name, mid_rate, bid_rate, ask_rate, date)
                 VALUES (?, ?, NULL, ?, ?, ?)
             ''', (rate['code'], rate['currency'], rate['bid'], rate['ask'], effective_date))
@@ -192,68 +185,9 @@ def store_rates_bid_ask(rates, effective_date):
             print(f"Record for {rate['code']} on {effective_date} might already exist or other integrity constraint failed.")
         except KeyError as e:
             print(f"Missing key in rate data: {e} - Data: {rate}")
+    
     db.commit()
     print(f"Successfully stored bid/ask rates for {effective_date}")
-
-@app.route('/update_rates')
-def update_rates_route():
-    rates, effective_date = fetch_currency_rates()
-    if rates and effective_date:
-        store_rates(rates, effective_date)
-        return jsonify({"message": "Rates updated successfully for " + effective_date}), 200
-    return jsonify({"message": "Failed to fetch or store rates"}), 500
-
-@app.route('/update_rates_bid_ask')
-def update_rates_bid_ask_route():
-    rates, effective_date = fetch_currency_rates_with_bid_ask()
-    if rates and effective_date:
-        store_rates_bid_ask(rates, effective_date)
-        return jsonify({"message": "Bid/Ask rates updated successfully for " + effective_date}), 200
-    return jsonify({"message": "Failed to fetch or store bid/ask rates"}), 500
-
-@app.route('/update_historical_rates')
-def update_historical_rates_route():
-    """Update with historical data from the last 30 days"""
-    historical_data = fetch_historical_currency_rates(30)
-    
-    if not historical_data:
-        return jsonify({"message": "Failed to fetch historical rates"}), 500
-    
-    stored_count = 0
-    for rates, effective_date in historical_data:
-        if rates and effective_date:
-            # Check if data already exists before storing
-            db = get_db()
-            cursor = db.cursor()
-            cursor.execute("SELECT 1 FROM rates WHERE date = ? LIMIT 1", (effective_date,))
-            if not cursor.fetchone():
-                store_rates(rates, effective_date)
-                stored_count += 1
-    
-    return jsonify({
-        "message": f"Historical rates updated successfully. Stored {stored_count} new days of data.",
-        "total_days_processed": len(historical_data)
-    }), 200
-
-@app.route('/update_historical_rates_bid_ask')
-def update_historical_rates_bid_ask_route():
-    days = request.args.get('days', default=30, type=int)
-    historical_data = fetch_historical_currency_rates_with_bid_ask(days)
-    if not historical_data:
-        return jsonify({"message": "Failed to fetch historical bid/ask rates"}), 500
-    stored_count = 0
-    for rates, effective_date in historical_data:
-        if rates and effective_date:
-            db = get_db()
-            cursor = db.cursor()
-            cursor.execute("SELECT 1 FROM rates WHERE date = ? LIMIT 1", (effective_date,))
-            if not cursor.fetchone():
-                store_rates_bid_ask(rates, effective_date)
-                stored_count += 1
-    return jsonify({
-        "message": f"Historical bid/ask rates updated successfully. Stored {stored_count} new days of data.",
-        "total_days_processed": len(historical_data)
-    }), 200
 
 def check_and_fetch_missing_data():
     """Check if we have enough data and fetch only missing data if needed"""
