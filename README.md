@@ -59,7 +59,6 @@ Zaawansowana aplikacja webowa Flask do monitorowania i analizowania kursów walu
 ├── README.md            # Dokumentacja projektu
 ├── README_eng.md        # Dokumentacja projektu (angielski)
 ├── check_db.py          # Skrypt do sprawdzania zawartości bazy danych
-├── debug_check.py       # Plik pomocniczy do debugowania
 ├── currency_rates.db    # Baza danych SQLite (tworzona automatycznie)
 ├── static/
 │   └── style.css        # Arkusz stylów CSS
