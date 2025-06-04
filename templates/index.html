@@ -2,11 +2,19 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <title>Kursy walut</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kursy walut - Modern Exchange Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta name="theme-color" content="#667eea">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
 </head>
-<body>    <div class="top-bar">
-        <span style="color: #28a745;">🔄 Auto-odświeżanie: włączone (5 min)</span>
+<body>
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon">🌙</span>
+        <span class="theme-text">Tryb ciemny</span>
+    </div>    <div class="top-bar">
+        <span>🔄 Auto-odświeżanie: włączone (5 min)</span>
     </div>
 
     <!-- Auto-refresh indicator -->
@@ -17,12 +25,12 @@
     <div class="container">
         <!-- Navigation -->
         <div class="navigation">
-            <a href="{{ url_for('index') }}" class="nav-btn active">Kursy walut</a>
-            <a href="{{ url_for('cryptocurrencies') }}" class="nav-btn">Kryptowaluty</a>
-            <a href="{{ url_for('api_rates') }}?limit=10" class="nav-btn" target="_blank">API JSON</a>
+            <a href="{{ url_for('index') }}" class="nav-btn active">💰 Kursy walut</a>
+            <a href="{{ url_for('cryptocurrencies') }}" class="nav-btn">₿ Kryptowaluty</a>
+            <a href="{{ url_for('api_rates') }}?limit=10" class="nav-btn" target="_blank">📊 API JSON</a>
         </div>
         
-        <h1>Historia kursu walut</h1>        <div class="currency-selector">
+        <h1>Historia kursu walut</h1><div class="currency-selector">
             <p>Wybierz walutę (vs PLN):</p>
             {% for currency in popular_currencies %}
                 <button data-currency="{{ currency }}" 
@@ -514,58 +522,73 @@
                     }
                 }
             }
-            
-            // Only initialize chart if we have data
+              // Only initialize chart if we have data
             if (traces.length > 0 && chartData.dates && chartData.dates.length > 0) {
                 try {
+                    // Get current theme for chart styling
+                    const isDarkMode = document.body.getAttribute('data-theme') === 'dark';
+                    
+                    // Dynamic colors based on theme
+                    const chartColors = {
+                        title: isDarkMode ? '#f7fafc' : '#333',
+                        axis: isDarkMode ? '#e2e8f0' : '#333',
+                        grid: isDarkMode ? '#4a5568' : '#e0e0e0',
+                        line: isDarkMode ? '#4a5568' : '#ccc',
+                        plotBg: isDarkMode ? '#2d3748' : '#fafafa',
+                        paperBg: isDarkMode ? '#1a1d23' : '#fff',
+                        hoverBg: isDarkMode ? '#2d3748' : '#FFF',
+                        hoverBorder: isDarkMode ? '#e2e8f0' : '#333',
+                        text: isDarkMode ? '#e2e8f0' : '#333'
+                    };
+                    
                     Plotly.newPlot('chart', traces, {
                         title: {
                             text: chartTitle,
-                            font: {size: 18, color: '#333'}
+                            font: {size: 18, color: chartColors.title}
                         },
                         xaxis: {
                             title: {
                                 text: 'Data',
-                                font: {size: 14}
+                                font: {size: 14, color: chartColors.axis}
                             },
                             rangeslider: {visible: false},
                             tickformat: '%d-%m-%Y',
                             nticks: 8,
                             tickangle: -45,
-                            gridcolor: '#e0e0e0',
-                            linecolor: '#ccc',
-                            tickfont: {size: 12}
+                            gridcolor: chartColors.grid,
+                            linecolor: chartColors.line,
+                            tickfont: {size: 12, color: chartColors.text}
                         },
                         yaxis: {
                             title: {
                                 text: yAxisTitle,
-                                font: {size: 14}
+                                font: {size: 14, color: chartColors.axis}
                             },
                             fixedrange: false,
                             tickformat: tickFormat,
                             tickmode: 'linear',
                             dtick: dtick,
-                            gridcolor: '#e0e0e0',
-                            linecolor: '#ccc',
+                            gridcolor: chartColors.grid,
+                            linecolor: chartColors.line,
                             zeroline: false,
-                            tickfont: {size: 12}
+                            tickfont: {size: 12, color: chartColors.text}
                         },
                         hovermode: 'x unified',
                         hoverlabel: {
-                            bgcolor: '#FFF',
-                            bordercolor: '#333',
-                            font: {size: 12}
+                            bgcolor: chartColors.hoverBg,
+                            bordercolor: chartColors.hoverBorder,
+                            font: {size: 12, color: chartColors.text}
                         },
                         legend: {
                             orientation: 'h', 
                             x: 0.5, 
                             xanchor: 'center', 
                             y: 1.1,
-                            font: {size: 12}
+                            font: {size: 12, color: chartColors.text}
                         },
                         margin: {t: 100, l: 80, r: 40, b: 80},
-                        plot_bgcolor: '#fafafa',
-                        paper_bgcolor: '#fff',
+                        plot_bgcolor: chartColors.plotBg,
+                        paper_bgcolor: chartColors.paperBg,
                         showlegend: false
                     }, {
                         responsive: true,
@@ -591,8 +614,76 @@
                     '<div style="text-align:center; padding:50px; color:#666; background:#f8f9fa; border:1px solid #dee2e6; border-radius:4px;">'+
                     '<p>Brak danych dla wybranego okresu.</p>' +
                     '<p style="font-size:0.9em; margin-top:10px;">Spróbuj wybrać inną walutę lub okres czasu.</p></div>';
-                console.log("No chart data available");
+                console.log("No chart data available");            }
+        }
+    </script>
+
+    <!-- Dark Mode Functionality -->
+    <script>
+        // Dark mode functionality with cookie persistence
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            const themeIcon = document.querySelector('.theme-icon');
+            const themeText = document.querySelector('.theme-text');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Tryb ciemny';
+                setCookie('theme', 'light', 365);
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Tryb jasny';
+                setCookie('theme', 'dark', 365);
             }
+            
+            // Refresh chart with new theme colors
+            if (document.getElementById('chart') && typeof setupChart === 'function') {
+                setTimeout(setupChart, 100); // Small delay to ensure theme is applied
+            }
+        }        // Initialize theme from cookie
+        function initializeTheme() {
+            const savedTheme = getCookie('theme');
+            const themeToggle = document.querySelector('.theme-toggle');
+            const themeIcon = document.querySelector('.theme-icon');
+            const themeText = document.querySelector('.theme-text');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Tryb jasny';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Tryb ciemny';
+            }
+            
+            // Refresh chart with correct theme colors after initialization
+            if (document.getElementById('chart') && typeof setupChart === 'function') {
+                setTimeout(setupChart, 200); // Small delay to ensure theme is applied
+            }
+        }
+
+        // Initialize theme when page loads
+        document.addEventListener('DOMContentLoaded', initializeTheme);
+        
+        // Also run if the page is already loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeTheme);
+        } else {
+            initializeTheme();
         }
     </script>
 </body>

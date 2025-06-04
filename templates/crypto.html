@@ -3,112 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Kryptowaluty</title>
+    <title>Top Kryptowaluty - Modern Exchange Tracker</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <style>
-        .crypto-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .crypto-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .crypto-card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            border: 1px solid #dee2e6;
-        }
-        
-        .crypto-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .crypto-icon {
-            width: 32px;
-            height: 32px;
-            margin-right: 12px;
-            border-radius: 50%;
-        }
-        
-        .crypto-name {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        .crypto-symbol {
-            color: #666;
-            font-size: 0.9em;
-            margin-left: 8px;
-        }
-        
-        .crypto-price {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .crypto-change {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        
-        .change-positive {
-            color: #28a745;
-        }
-        
-        .change-negative {
-            color: #dc3545;
-        }
-        
-        .crypto-stats {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            font-size: 0.9em;
-        }
-        
-        .stat-label {
-            color: #666;
-        }
-          .stat-value {
-            font-weight: bold;
-        }
-        
-        .market-cap {
-            font-size: 0.85em;
-            color: #666;
-        }
-    </style>
+    <meta name="theme-color" content="#667eea">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>₿</text></svg>">
 </head>
 <body>
-    <div class="container">
+    <!-- Dark Mode Toggle -->
+    <div class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-icon">🌙</span>
+        <span class="theme-text">Tryb ciemny</span>
+    </div>
+
+    <div class="container crypto-container">
         <h1>Top 10 Kryptowalut</h1>
-          <div class="navigation">
-            <a href="{{ url_for('index') }}" class="nav-btn">Kursy Walut</a>
-            <a href="{{ url_for('cryptocurrencies') }}" class="nav-btn active">Kryptowaluty</a>
-            <a href="{{ url_for('api_rates') }}?limit=5" class="nav-btn" target="_blank">API JSON</a>
-        </div>
         
-        {% if error_message %}
+        <div class="navigation">
+            <a href="{{ url_for('index') }}" class="nav-btn">💰 Kursy Walut</a>
+            <a href="{{ url_for('cryptocurrencies') }}" class="nav-btn active">₿ Kryptowaluty</a>
+            <a href="{{ url_for('api_rates') }}?limit=5" class="nav-btn" target="_blank">📊 API JSON</a>
+        </div>
+          {% if error_message %}
             <div class="error-message">{{ error_message }}</div>
         {% else %}
             <div class="crypto-grid">
@@ -121,7 +36,7 @@
                             <div class="crypto-symbol">{{ crypto.symbol.upper() }}</div>
                         </div>
                         <div style="margin-left: auto; text-align: right;">
-                            <div style="font-size: 0.8em; color: #666;">#{{ crypto.market_cap_rank }}</div>
+                            <div style="font-size: 0.8em; color: var(--text-secondary); font-weight: 600;">#{{ crypto.market_cap_rank }}</div>
                         </div>
                     </div>
                     
@@ -134,6 +49,7 @@
                             <span class="{% if crypto.price_change_percentage_24h >= 0 %}change-positive{% else %}change-negative{% endif %}">
                                 {% if crypto.price_change_percentage_24h %}
                                     {{ "%.2f" | format(crypto.price_change_percentage_24h) }}%
+                                    {% if crypto.price_change_percentage_24h >= 0 %}📈{% else %}📉{% endif %}
                                 {% else %}
                                     N/A
                                 {% endif %}
@@ -143,16 +59,16 @@
                             <span class="{% if crypto.price_change_percentage_7d_in_currency >= 0 %}change-positive{% else %}change-negative{% endif %}">
                                 {% if crypto.price_change_percentage_7d_in_currency %}
                                     {{ "%.2f" | format(crypto.price_change_percentage_7d_in_currency) }}%
+                                    {% if crypto.price_change_percentage_7d_in_currency >= 0 %}📈{% else %}📉{% endif %}
                                 {% else %}
                                     N/A
                                 {% endif %}
                             </span>
                         </span>
                     </div>
-                    
-                    <div class="crypto-stats">
+                      <div class="crypto-stats">
                         <div class="stat-row">
-                            <span class="stat-label">Kapitalizacja:</span>
+                            <span class="stat-label">💰 Kapitalizacja:</span>
                             <span class="stat-value market-cap">
                                 {% if crypto.market_cap %}
                                     ${{ "{:,.0f}".format(crypto.market_cap) }}
@@ -162,7 +78,7 @@
                             </span>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">Wolumen 24h:</span>
+                            <span class="stat-label">📊 Wolumen 24h:</span>
                             <span class="stat-value">
                                 {% if crypto.total_volume %}
                                     ${{ "{:,.0f}".format(crypto.total_volume) }}
@@ -172,7 +88,7 @@
                             </span>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">Najwyższy (24h):</span>
+                            <span class="stat-label">⬆️ Najwyższy (24h):</span>
                             <span class="stat-value">
                                 {% if crypto.high_24h %}
                                     ${{ "%.2f" | format(crypto.high_24h) }}
@@ -182,7 +98,7 @@
                             </span>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">Najniższy (24h):</span>
+                            <span class="stat-label">⬇️ Najniższy (24h):</span>
                             <span class="stat-value">
                                 {% if crypto.low_24h %}
                                     ${{ "%.2f" | format(crypto.low_24h) }}
@@ -198,16 +114,99 @@
         {% endif %}
         
         <div class="footer">
-            <p>Dane pochodzą z <a href="https://www.coingecko.com/" target="_blank">CoinGecko API</a></p>
-            <p>Ostatnia aktualizacja: {{ moment().format('YYYY-MM-DD HH:mm:ss') if moment else 'N/A' }}</p>
+            <p>💎 Dane pochodzą z <a href="https://www.coingecko.com/" target="_blank" rel="noopener">CoinGecko API</a></p>
+            <p>🕒 Automatyczne odświeżanie co 5 minut</p>
         </div>
     </div>
     
     <script>
-        // Auto-refresh every 5 minutes
-        setTimeout(function() {
-            location.reload();
-        }, 300000);
+        // Auto-refresh every 5 minutes with smooth transition
+        let refreshTimer;
+        let countdownTimer;
+        let timeLeft = 300; // 5 minutes
+        
+        function startAutoRefresh() {
+            refreshTimer = setTimeout(function() {
+                // Add fade effect before reload
+                document.body.style.opacity = '0.7';
+                document.body.style.transition = 'opacity 0.5s ease';
+                setTimeout(() => location.reload(), 500);
+            }, 300000);
+            
+            // Show countdown
+            updateRefreshCountdown();
+        }
+        
+        function updateRefreshCountdown() {
+            countdownTimer = setInterval(() => {
+                timeLeft--;
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    return;
+                }
+            }, 1000);
+        }
+
+        // Dark mode functionality with cookie persistence
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+            return null;
+        }
+
+        function setCookie(name, value, days) {
+            const expires = new Date();
+            expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+            document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.querySelector('.theme-toggle');
+            const themeIcon = document.querySelector('.theme-icon');
+            const themeText = document.querySelector('.theme-text');
+            
+            if (body.getAttribute('data-theme') === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Tryb ciemny';
+                setCookie('theme', 'light', 365);
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Tryb jasny';
+                setCookie('theme', 'dark', 365);
+            }
+        }
+
+        // Initialize theme from cookie
+        function initializeTheme() {
+            const savedTheme = getCookie('theme');
+            const themeIcon = document.querySelector('.theme-icon');
+            const themeText = document.querySelector('.theme-text');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Tryb jasny';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Tryb ciemny';
+            }
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
+            startAutoRefresh();
+        });
+        
+        // Also run if the page is already loaded
+        if (document.readyState !== 'loading') {
+            initializeTheme();
+            startAutoRefresh();
+        }
     </script>
 </body>
 </html>
