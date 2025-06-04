@@ -203,21 +203,32 @@ def check_and_fetch_missing_data():
     
     # Check data availability for each currency
     today = datetime.now().date()
-    five_years_ago = today - timedelta(days=5*365)
     
     missing_data_found = False
     total_stored = 0
     
     for currency in required_currencies:
-        # Check if we have recent data for this currency
+        # First check if we have any data at all for this currency
+        cursor.execute("""
+            SELECT COUNT(*) FROM rates 
+            WHERE currency_code = ?
+        """, (currency,))
+        total_count = cursor.fetchone()[0]
+        
+        # Check if we have recent data (last 7 days)
+        recent_period = today - timedelta(days=7)
         cursor.execute("""
             SELECT COUNT(*) FROM rates 
             WHERE currency_code = ? AND date >= ?
-        """, (currency, five_years_ago.strftime('%Y-%m-%d')))
-        count = cursor.fetchone()[0]
+        """, (currency, recent_period.strftime('%Y-%m-%d')))
+        recent_count = cursor.fetchone()[0]
         
-        if count < 30:  # If we have less than 30 days of data
-            print(f"Insufficient data for {currency}: {count} records. Fetching missing data...")
+        # Only fetch data if we have very little data overall (less than 50 records) 
+        # OR if we have no recent data and less than 500 total records
+        should_fetch = (total_count < 50) or (recent_count == 0 and total_count < 500)
+        
+        if should_fetch:
+            print(f"Fetching data for {currency}: {total_count} total records, {recent_count} recent records")
             missing_data_found = True
             
             # Get the latest date we have for this currency
@@ -230,7 +241,8 @@ def check_and_fetch_missing_data():
                 latest_date = datetime.strptime(latest_date_row[0], '%Y-%m-%d').date()
                 start_date = latest_date + timedelta(days=1)  # Start from day after latest
             else:
-                start_date = five_years_ago  # If no data, start from 5 years ago
+                # If no data, start from 1 year ago instead of 5 years
+                start_date = today - timedelta(days=365)
             
             # Only fetch if there's a gap to fill
             if start_date <= today:
@@ -344,26 +356,34 @@ def cryptocurrencies():
 def index():
     db = get_db()
     cursor = db.cursor()
-    
-    # Automatically check and fetch missing data (only if not explicitly skipped)
+      # Automatically check and fetch missing data (only if not explicitly skipped)
     init_skip = request.args.get('init', '') == 'skip'
     if not init_skip:
-        # Check if we have sufficient data for each required currency
+        # Check if we have recent data for each required currency
         required_currencies = ['USD', 'EUR', 'GBP', 'CHF']
         today = datetime.now().date()
-        five_years_ago = today - timedelta(days=5*365)
+        recent_period = today - timedelta(days=7)  # Check only last 7 days instead of 5 years
         
         data_needs_update = False
         for currency in required_currencies:
+            # Check if we have any data from the last 7 days
             cursor.execute("""
                 SELECT COUNT(*) FROM rates 
                 WHERE currency_code = ? AND date >= ?
-            """, (currency, five_years_ago.strftime('%Y-%m-%d')))
-            count = cursor.fetchone()[0]
+            """, (currency, recent_period.strftime('%Y-%m-%d')))
+            recent_count = cursor.fetchone()[0]
             
-            if count < 30:  # If we have less than 30 days of recent data
+            # Also check if we have any data at all for this currency
+            cursor.execute("""
+                SELECT COUNT(*) FROM rates 
+                WHERE currency_code = ?
+            """, (currency,))
+            total_count = cursor.fetchone()[0]
+            
+            # Only trigger update if we have no recent data AND less than 100 total records
+            if recent_count == 0 and total_count < 100:
                 data_needs_update = True
-                print(f"Auto-checking: {currency} has only {count} recent records, will fetch missing data")
+                print(f"Auto-checking: {currency} has no recent data ({recent_count} recent, {total_count} total), will fetch missing data")
                 break
         
         # If data needs update, do it silently in background

@@ -1,143 +1,159 @@
-# Aplikacja Kursów Walut - Currency Exchange Rate Tracker
+# Aplikacja Kursów Walut
 
 Zaawansowana aplikacja webowa Flask do monitorowania i analizowania kursów walut z API Narodowego Banku Polskiego (NBP). Aplikacja pozwala na śledzenie historycznych kursów walut z interaktywnymi wykresami i automatycznym zarządzaniem danymi.
 
-## Główne Funkcjonalności
+## Funkcjonalności
 
-- **Kursy Walut**: Monitorowanie kursów walut względem PLN z interaktywnymi wykresami
-- **Śledzenie Kryptowalut**: Przegląd top 10 kryptowalut z danymi rynkowymi w czasie rzeczywistym
+- **Kursy Walut** - Monitorowanie kursów walut względem PLN z interaktywnymi wykresami
+- **Śledzenie Kryptowalut** - Przegląd top 10 kryptowalut z danymi rynkowymi w czasie rzeczywistym
 - **Wieloźródłowe Dane**:
   - API NBP: Narodowy Bank Polski dla kursów walut (Tabele A i C)
   - API CoinGecko: Dane rynkowe kryptowalut
-- **Interaktywna Nawigacja**: Łatwe przełączanie między walutami a kryptowalutami
-- **Endpointy JSON API**: RESTful API do dostępu do przechowywanych danych walutowych
-- **Responsywny Design**: Nowoczesny interfejs zoptymalizowany na desktop i urządzenia mobilne
-- **Automatyczne Zarządzanie Danymi**: Inteligentne pobieranie i przechowywanie brakujących danych historycznych
-- **Wybór Okresów Czasowych**: 7 dni, 1 miesiąc, 6 miesięcy, 1 rok lub wszystkie dostępne dane
-- **Zewnętrzne Style CSS**: Czysta, łatwa w utrzymaniu architektura kodu
+- **Interaktywna Nawigacja** - Łatwe przełączanie między walutami a kryptowalutami
+- **Endpointy JSON API** - RESTful API do dostępu do przechowywanych danych walutowych
+- **Responsywny Design** - Nowoczesny interfejs zoptymalizowany na desktop i urządzenia mobilne
+- **Automatyczne Zarządzanie Danymi** - Inteligentne pobieranie i przechowywanie brakujących danych historycznych
+- **Wybór Okresów Czasowych** - 7 dni, 1 miesiąc, 6 miesięcy, 1 rok lub wszystkie dostępne dane
+- **Zewnętrzne Style CSS** - Czysta, łatwa w utrzymaniu architektura kodu
 
-## Instalacja i Uruchomienie
+## Instalacja
 
 ### Wymagania
+
 - Python 3.7+
 - pip (menedżer pakietów Python)
 
-### Kroki instalacji
+### Konfiguracja
 
 1. **Sklonuj repozytorium lub pobierz pliki projektu**
 
 2. **Utwórz środowisko wirtualne (zalecane):**
    ```bash
    python -m venv venv
+   ```
+
+3. **Aktywuj środowisko wirtualne:**
+   ```bash
    # Windows
    .\venv\Scripts\activate
+   
    # macOS/Linux
    source venv/bin/activate
    ```
 
-3. **Zainstaluj zależności:**
+4. **Zainstaluj zależności:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Uruchom aplikację:**
+5. **Uruchom aplikację:**
    ```bash
    python app.py
    ```
+   
    Serwer uruchomi się na `http://127.0.0.1:5000/`
 
-5. **Inicjalizacja danych:**
+6. **Inicjalizacja danych:**
    - Baza danych (`currency_rates.db`) zostanie utworzona automatycznie
    - Aplikacja automatycznie sprawdzi i pobierze brakujące dane przy pierwszym uruchomieniu
    - Możesz również ręcznie zaktualizować dane używając odpowiednich endpointów
 
-## Dostępne Endpointy
-
-Aplikacja udostępnia kilka endpointów webowych i API:
+## Dokumentacja API
 
 ### Interfejs Webowy
+
 - **`/` lub `/currencies`** - Główny panel kursów walut
 - **`/cryptocurrencies`** - Top 10 kryptowalut z danymi rynkowymi
 
-### Endpointy API
-- **`/api/rates`** - JSON API dla danych walutowych z opcjami filtrowania
-  - Parametry zapytania:
-    - `currency` - Filtruj według kodu waluty (np. USD, EUR)
-    - `limit` - Maksymalna liczba rekordów (domyślnie: 30)
-    - `start_date` - Filtruj od daty (format YYYY-MM-DD)
-    - `end_date` - Filtruj do daty (format YYYY-MM-DD)
-  - Przykład: `/api/rates?currency=USD&limit=10`
+### Endpointy REST API
 
-- **`/check_and_fetch_data`** - Ręczne wywołanie aktualizacji danych
+#### Pobieranie Kursów Walut
+```
+GET /api/rates
+```
 
-### Źródła Danych API
-- **API NBP**: Kursy walut Narodowego Banku Polskiego
+**Parametry zapytania:**
+- `currency` - Filtruj według kodu waluty (np. USD, EUR)
+- `limit` - Maksymalna liczba rekordów (domyślnie: 30)
+- `start_date` - Filtruj od daty (format YYYY-MM-DD)
+- `end_date` - Filtruj do daty (format YYYY-MM-DD)
+
+**Przykład:**
+```
+GET /api/rates?currency=USD&limit=10
+```
+
+#### Ręczna Aktualizacja Danych
+```
+GET /check_and_fetch_data
+```
+
+### Źródła Danych
+
+- **API NBP** - Kursy walut Narodowego Banku Polskiego
   - Tabela A: Kursy średnie
   - Tabela C: Kursy kupna/sprzedaży (bid/ask)
-- **API CoinGecko**: Dane rynkowe kryptowalut (darmowy poziom)
+- **API CoinGecko** - Dane rynkowe kryptowalut (darmowy poziom)
 
 ## Struktura Projektu
 
 ```
-<<<<<<< HEAD
 curr-exchange-tracker/
-├── app.py                 # Główna aplikacja Flask
-├── schema.sql             # Schemat bazy danych
-├── requirements.txt       # Zależności Python
-├── currency_rates.db      # Baza SQLite (tworzona automatycznie)
-=======
-├── app.py                 # Główny plik aplikacji Flask
-├── schema.sql            # Schemat bazy danych SQLite
+├── app.py                # Główna aplikacja Flask
+├── schema.sql            # Schemat bazy danych
 ├── requirements.txt      # Zależności Python
-├── README.md            # Dokumentacja projektu
-├── README_eng.md        # Dokumentacja projektu (angielski)
-├── check_db.py          # Skrypt do sprawdzania zawartości bazy danych
-├── currency_rates.db    # Baza danych SQLite (tworzona automatycznie)
->>>>>>> 5b74f98d554321eebdc4218e99a9e4987c1c8490
+├── check_db.py           # Skrypt do sprawdzania zawartości bazy danych
+├── currency_rates.db     # Baza SQLite (tworzona automatycznie)
 ├── static/
-│   └── style.css          # Zewnętrzne style CSS
+│   └── style.css         # Zewnętrzne style CSS
 ├── templates/
-│   ├── index.html         # Strona kursów walut
-│   └── crypto.html        # Strona kryptowalut
-├── README.md              # Dokumentacja polska
-└── README_eng.md          # Dokumentacja angielska
+│   ├── index.html        # Strona kursów walut
+│   └── crypto.html       # Strona kryptowalut
+├── README.md             # Dokumentacja polska
+└── README_eng.md         # Dokumentacja angielska
 ```
 
 ## Obsługiwane Waluty
 
 Aplikacja obsługuje wszystkie waluty dostępne w API NBP, z domyślnym fokusem na:
+
 - **USD** - Dolar amerykański
 - **EUR** - Euro
 - **GBP** - Funt brytyjski  
 - **CHF** - Frank szwajcarski
 
-## Technologie
+## Stos Technologiczny
 
-- **Backend**: Flask (Python)
-- **Frontend**: HTML5, CSS3, JavaScript
-- **Wykresy**: Plotly.js
-- **Baza danych**: SQLite
-- **API**: NBP Web API
-- **Styling**: CSS z responsywnym designem
+- **Backend:** Flask (Python)
+- **Frontend:** HTML5, CSS3, JavaScript
+- **Wykresy:** Plotly.js
+- **Baza danych:** SQLite
+- **API:** NBP Web API, CoinGecko API
+- **Styling:** CSS z responsywnym designem
 
-## API Narodowego Banku Polskiego
+## Integracja z API NBP
 
 Aplikacja wykorzystuje oficjalne [NBP Web API](http://api.nbp.pl/):
-- **Tabela A**: Kursy średnie walut obcych
-- **Tabela C**: Kursy kupna i sprzedaży walut obcych
+
+- **Tabela A** - Kursy średnie walut obcych
+- **Tabela C** - Kursy kupna i sprzedaży walut obcych
 
 API NBP jest darmowe i nie wymaga klucza dostępu. Dostarcza aktualne i historyczne kursy walut względem PLN.
 
-## Konfiguracja i Dostosowanie
+## Konfiguracja
 
-### Zmiana wyświetlanych walut
+### Zmiana Wyświetlanych Walut
+
 Edytuj zmienną `popular_currencies` w funkcji `index()` w pliku `app.py`:
+
 ```python
 popular_currencies = ('USD', 'EUR', 'GBP', 'CHF', 'JPY')  # Dodaj więcej walut
 ```
 
-### Zmiana okresów czasowych
+### Modyfikacja Okresów Czasowych
+
 Modyfikuj słownik `time_periods` w funkcji `index()`:
+
 ```python
 time_periods = {
     '7days': '7 Dni',
@@ -149,28 +165,34 @@ time_periods = {
 }
 ```
 
-### Stylizacja interfejsu
-Modyfikuj plik `templates/index.html` aby dostosować wygląd aplikacji.
+### Dostosowanie Interfejsu
+
+Modyfikuj CSS w `static/style.css` lub szablony HTML w katalogu `templates/`.
 
 ## Funkcje Zaawansowane
 
-- **Automatyczne zarządzanie danymi**: Aplikacja sprawdza dostępność danych i automatycznie pobiera brakujące informacje
-- **Obsługa dużych zakresów dat**: Inteligentne dzielenie zapytań API na mniejsze części
-- **Obsługa błędów**: Zabezpieczenia przed błędami API i bazą danych
-- **Responsywny design**: Interfejs dostosowany do różnych rozmiarów ekranów
+- **Automatyczne Zarządzanie Danymi** - Aplikacja sprawdza dostępność danych i automatycznie pobiera brakujące informacje
+- **Obsługa Dużych Zakresów Dat** - Inteligentne dzielenie zapytań API na mniejsze części
+- **Obsługa Błędów** - Zabezpieczenia przed błędami API i bazą danych
+- **Responsywny Design** - Interfejs dostosowany do różnych rozmiarów ekranów
 
 ## Rozwiązywanie Problemów
 
-### Brak danych po uruchomieniu
-Aplikacja automatycznie pobierze dane przy pierwszym uruchomieniu. Jeśli nie, użyj:
+### Brak Danych Po Uruchomieniu
+
+Aplikacja automatycznie pobierze dane przy pierwszym uruchomieniu. Jeśli nie, ręcznie wywołaj:
+
 ```
 http://127.0.0.1:5000/check_and_fetch_data
 ```
 
-### Błędy połączenia z API
-Sprawdź połączenie internetowe i dostępność API NBP pod adresem: http://api.nbp.pl/
+### Błędy Połączenia z API
 
-### Problemy z bazą danych
+- Sprawdź połączenie internetowe
+- Zweryfikuj dostępność API NBP pod adresem: http://api.nbp.pl/
+
+### Problemy z Bazą Danych
+
 Usuń plik `currency_rates.db` - zostanie utworzony ponownie przy następnym uruchomieniu.
 
 ## Licencja
