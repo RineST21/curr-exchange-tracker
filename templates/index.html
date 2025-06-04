@@ -14,7 +14,15 @@
         Następne odświeżenie za: <span id="countdown">5:00</span>
     </div>
 
-    <div class="container">        <h1>Historia kursu walut</h1>        <div class="currency-selector">
+    <div class="container">
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="{{ url_for('index') }}" class="nav-btn active">Kursy walut</a>
+            <a href="{{ url_for('cryptocurrencies') }}" class="nav-btn">Kryptowaluty</a>
+            <a href="{{ url_for('api_rates') }}?limit=10" class="nav-btn" target="_blank">API JSON</a>
+        </div>
+        
+        <h1>Historia kursu walut</h1>        <div class="currency-selector">
             <p>Wybierz walutę (vs PLN):</p>
             {% for currency in popular_currencies %}
                 <button data-currency="{{ currency }}" 

@@ -39,6 +39,9 @@ NBP_HISTORICAL_URL = "http://api.nbp.pl/api/exchangerates/tables/A/last/30/?form
 NBP_API_URL_C = "http://api.nbp.pl/api/exchangerates/tables/C/?format=json"
 NBP_HISTORICAL_URL_C = "http://api.nbp.pl/api/exchangerates/tables/C/last/30/?format=json"
 
+# Cryptocurrency API (CoinGecko - free tier)
+CRYPTO_API_URL = "https://api.coingecko.com/api/v3/coins/markets"
+
 def fetch_currency_rates():
     try:
         response = requests.get(NBP_API_URL)
@@ -177,7 +180,8 @@ def store_rates_bid_ask(rates, effective_date):
         print(f"Data for {effective_date} already exists. Skipping insertion.")
         return
     for rate in rates:
-        try:            cursor.execute('''
+        try:
+            cursor.execute('''
                 INSERT INTO rates (currency_code, currency_name, mid_rate, bid_rate, ask_rate, date)
                 VALUES (?, ?, NULL, ?, ?, ?)
             ''', (rate['code'], rate['currency'], rate['bid'], rate['ask'], effective_date))
@@ -267,7 +271,76 @@ def check_and_fetch_data():
     """Check if we have enough data and fetch only missing data if needed"""
     return check_and_fetch_missing_data()
 
+@app.route('/api/rates')
+def api_rates():
+    """Return currency rates data in JSON format"""
+    db = get_db()
+    cursor = db.cursor()
+    
+    # Get query parameters
+    currency_code = request.args.get('currency')
+    limit = request.args.get('limit', type=int, default=30)
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
+    # Build query
+    query = "SELECT * FROM rates WHERE 1=1"
+    params = []
+    
+    if currency_code:
+        query += " AND currency_code = ?"
+        params.append(currency_code.upper())
+    
+    if start_date:
+        query += " AND date >= ?"
+        params.append(start_date)
+        
+    if end_date:
+        query += " AND date <= ?"
+        params.append(end_date)
+    
+    query += " ORDER BY date DESC"
+    
+    if limit:
+        query += " LIMIT ?"
+        params.append(limit)
+    
+    cursor.execute(query, params)
+    rates = cursor.fetchall()
+    
+    # Convert to list of dictionaries
+    rates_list = []
+    for rate in rates:
+        rates_list.append({
+            'id': rate['id'] if 'id' in rate.keys() else None,
+            'currency_code': rate['currency_code'],
+            'currency_name': rate['currency_name'],
+            'mid_rate': rate['mid_rate'],
+            'bid_rate': rate['bid_rate'],
+            'ask_rate': rate['ask_rate'],
+            'date': rate['date']
+        })
+    
+    return jsonify({
+        'status': 'success',
+        'count': len(rates_list),
+        'data': rates_list
+    })
+
+@app.route('/cryptocurrencies')
+def cryptocurrencies():
+    """Display top cryptocurrencies"""
+    crypto_data = fetch_cryptocurrency_data(10)
+    
+    if not crypto_data:
+        return render_template('crypto.html', 
+                             crypto_data=[],
+                             error_message="Nie udało się pobrać danych o kryptowalutach")
+    
+    return render_template('crypto.html', crypto_data=crypto_data)
+
 @app.route('/')
+@app.route('/currencies')
 def index():
     db = get_db()
     cursor = db.cursor()
@@ -324,13 +397,13 @@ def index():
     
     if selected_currency not in popular_currencies:
         selected_currency = popular_currencies[0] # Fallback if invalid currency is provided
-    
-    # Define time periods
+      # Define time periods
     time_periods = {
         '7days': '7 Dni',
         '1month': '1 Miesiąc', 
         '6months': '6 Miesięcy',
-        '1year': '1 Rok',        'all': 'Wszystkie dane'
+        '1year': '1 Rok',
+        'all': 'Wszystkie dane'
     }
     
     # Calculate date filter based on selected period
@@ -460,6 +533,29 @@ def index():
                            current_bid=get_last_valid(values_bid),
                            current_ask=get_last_valid(values_ask),
                            show_init_message=show_init_message)
+
+def fetch_cryptocurrency_data(limit=10):
+    """Fetch top cryptocurrencies data from CoinGecko API"""
+    try:
+        params = {
+            'vs_currency': 'usd',
+            'order': 'market_cap_desc',
+            'per_page': limit,
+            'page': 1,
+            'sparkline': False,
+            'price_change_percentage': '24h,7d'
+        }
+        
+        response = requests.get(CRYPTO_API_URL, params=params)
+        response.raise_for_status()
+        crypto_data = response.json()
+        
+        if crypto_data and isinstance(crypto_data, list):
+            return crypto_data
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching cryptocurrency data: {e}")
+    return []
 
 # Placeholder for gunicorn or other WSGI server in production
 # from flask import g

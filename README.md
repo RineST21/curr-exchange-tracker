@@ -4,16 +4,17 @@ Zaawansowana aplikacja webowa Flask do monitorowania i analizowania kursów walu
 
 ## Główne Funkcjonalności
 
-- **Pobieranie danych z API NBP**: Automatyczne pobieranie aktualnych i historycznych kursów walut
-- **Wsparcie dla tabel A i C NBP**: 
-  - Tabela A: kursy średnie
-  - Tabela C: kursy kupna i sprzedaży (bid/ask)
-- **Interaktywne wykresy**: Dynamiczne wykresy z użyciem Plotly.js
-- **Wybór okresów czasowych**: 7 dni, 1 miesiąc, 6 miesięcy, 1 rok, wszystkie dane
-- **Automatyczne zarządzanie danymi**: Inteligentne sprawdzanie i pobieranie brakujących danych
-- **Wsparcie dla popularnych walut**: USD, EUR, GBP, CHF
-- **Responsywny interfejs**: Nowoczesny design dostosowany do urządzeń mobilnych
-- **Przechowywanie w SQLite**: Efektywne przechowywanie danych historycznych
+- **Kursy Walut**: Monitorowanie kursów walut względem PLN z interaktywnymi wykresami
+- **Śledzenie Kryptowalut**: Przegląd top 10 kryptowalut z danymi rynkowymi w czasie rzeczywistym
+- **Wieloźródłowe Dane**:
+  - API NBP: Narodowy Bank Polski dla kursów walut (Tabele A i C)
+  - API CoinGecko: Dane rynkowe kryptowalut
+- **Interaktywna Nawigacja**: Łatwe przełączanie między walutami a kryptowalutami
+- **Endpointy JSON API**: RESTful API do dostępu do przechowywanych danych walutowych
+- **Responsywny Design**: Nowoczesny interfejs zoptymalizowany na desktop i urządzenia mobilne
+- **Automatyczne Zarządzanie Danymi**: Inteligentne pobieranie i przechowywanie brakujących danych historycznych
+- **Wybór Okresów Czasowych**: 7 dni, 1 miesiąc, 6 miesięcy, 1 rok lub wszystkie dostępne dane
+- **Zewnętrzne Style CSS**: Czysta, łatwa w utrzymaniu architektura kodu
 
 ## Instalacja i Uruchomienie
 
@@ -50,29 +51,47 @@ Zaawansowana aplikacja webowa Flask do monitorowania i analizowania kursów walu
    - Aplikacja automatycznie sprawdzi i pobierze brakujące dane przy pierwszym uruchomieniu
    - Możesz również ręcznie zaktualizować dane używając odpowiednich endpointów
 
+## Dostępne Endpointy
+
+Aplikacja udostępnia kilka endpointów webowych i API:
+
+### Interfejs Webowy
+- **`/` lub `/currencies`** - Główny panel kursów walut
+- **`/cryptocurrencies`** - Top 10 kryptowalut z danymi rynkowymi
+
+### Endpointy API
+- **`/api/rates`** - JSON API dla danych walutowych z opcjami filtrowania
+  - Parametry zapytania:
+    - `currency` - Filtruj według kodu waluty (np. USD, EUR)
+    - `limit` - Maksymalna liczba rekordów (domyślnie: 30)
+    - `start_date` - Filtruj od daty (format YYYY-MM-DD)
+    - `end_date` - Filtruj do daty (format YYYY-MM-DD)
+  - Przykład: `/api/rates?currency=USD&limit=10`
+
+- **`/check_and_fetch_data`** - Ręczne wywołanie aktualizacji danych
+
+### Źródła Danych API
+- **API NBP**: Kursy walut Narodowego Banku Polskiego
+  - Tabela A: Kursy średnie
+  - Tabela C: Kursy kupna/sprzedaży (bid/ask)
+- **API CoinGecko**: Dane rynkowe kryptowalut (darmowy poziom)
+
 ## Struktura Projektu
 
 ```
-├── app.py                 # Główny plik aplikacji Flask
-├── schema.sql            # Schemat bazy danych SQLite
-├── requirements.txt      # Zależności Python
-├── README.md            # Dokumentacja projektu
-├── README_eng.md        # Dokumentacja projektu (angielski)
-├── check_db.py          # Skrypt do sprawdzania zawartości bazy danych
-├── debug_check.py       # Plik pomocniczy do debugowania
-├── currency_rates.db    # Baza danych SQLite (tworzona automatycznie)
+curr-exchange-tracker/
+├── app.py                 # Główna aplikacja Flask
+├── schema.sql             # Schemat bazy danych
+├── requirements.txt       # Zależności Python
+├── currency_rates.db      # Baza SQLite (tworzona automatycznie)
 ├── static/
-│   └── style.css        # Arkusz stylów CSS
-└── templates/
-    └── index.html       # Szablon HTML z interaktywnym interfejsem
+│   └── style.css          # Zewnętrzne style CSS
+├── templates/
+│   ├── index.html         # Strona kursów walut
+│   └── crypto.html        # Strona kryptowalut
+├── README.md              # Dokumentacja polska
+└── README_eng.md          # Dokumentacja angielska
 ```
-
-## Dostępne Endpointy API
-
-- `/` - Główna strona z wykresami kursów walut
-- `/check_and_fetch_data` - Sprawdzenie i pobranie brakujących danych (opcjonalne)
-
-**Uwaga**: Aplikacja automatycznie pobiera i aktualizuje dane przy każdym uruchomieniu, więc ręczna aktualizacja zazwyczaj nie jest potrzebna.
 
 ## Obsługiwane Waluty
 
