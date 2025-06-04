@@ -79,11 +79,21 @@ Aplikacja udostępnia kilka endpointów webowych i API:
 ## Struktura Projektu
 
 ```
+<<<<<<< HEAD
 curr-exchange-tracker/
 ├── app.py                 # Główna aplikacja Flask
 ├── schema.sql             # Schemat bazy danych
 ├── requirements.txt       # Zależności Python
 ├── currency_rates.db      # Baza SQLite (tworzona automatycznie)
+=======
+├── app.py                 # Główny plik aplikacji Flask
+├── schema.sql            # Schemat bazy danych SQLite
+├── requirements.txt      # Zależności Python
+├── README.md            # Dokumentacja projektu
+├── README_eng.md        # Dokumentacja projektu (angielski)
+├── check_db.py          # Skrypt do sprawdzania zawartości bazy danych
+├── currency_rates.db    # Baza danych SQLite (tworzona automatycznie)
+>>>>>>> 5b74f98d554321eebdc4218e99a9e4987c1c8490
 ├── static/
 │   └── style.css          # Zewnętrzne style CSS
 ├── templates/
