@@ -146,7 +146,7 @@ The NBP API is free and does not require an access key. It provides current and 
 Edit the `popular_currencies` variable in the `index()` function in `app.py`:
 
 ```python
-popular_currencies = ('USD', 'EUR', 'GBP', 'CHF', 'JPY')  # Add more currencies
+popular_currencies = ('USD', 'EUR', 'GBP', 'CHF', 'JPY') 
 ```
 
 ### Modifying Time Periods
@@ -157,10 +157,9 @@ Modify the `time_periods` dictionary in the `index()` function:
 time_periods = {
     '7days': '7 Days',
     '1month': '1 Month', 
-    '3months': '3 Months',  # New period
+    '3months': '3 Months', 
     '6months': '6 Months',
     '1year': '1 Year',
-    'all': 'All data'
 }
 ```
 

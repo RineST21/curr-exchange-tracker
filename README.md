@@ -147,7 +147,7 @@ API NBP jest darmowe i nie wymaga klucza dostępu. Dostarcza aktualne i historyc
 Edytuj zmienną `popular_currencies` w funkcji `index()` w pliku `app.py`:
 
 ```python
-popular_currencies = ('USD', 'EUR', 'GBP', 'CHF', 'JPY')  # Dodaj więcej walut
+popular_currencies = ('USD', 'EUR', 'GBP', 'CHF', 'JPY')  
 ```
 
 ### Modyfikacja Okresów Czasowych
@@ -158,10 +158,9 @@ Modyfikuj słownik `time_periods` w funkcji `index()`:
 time_periods = {
     '7days': '7 Dni',
     '1month': '1 Miesiąc', 
-    '3months': '3 Miesiące',  # Nowy okres
+    '3months': '3 Miesiące',  
     '6months': '6 Miesięcy',
-    '1year': '1 Rok',
-    'all': 'Wszystkie dane'
+    '1year': '1 Rok'
 }
 ```
 

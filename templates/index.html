@@ -31,13 +31,11 @@
                 </button>
             {% endfor %}
         </div>        <div class="period-selector">
-            <label>Okres czasu:</label>
-            <div class="time-buttons">
+            <label>Okres czasu:</label>            <div class="time-buttons">
                 <button class="time-btn {% if selected_period == '7days' %}active{% endif %}" data-period="7days">7D</button>
                 <button class="time-btn {% if selected_period == '1month' %}active{% endif %}" data-period="1month">1M</button>
                 <button class="time-btn {% if selected_period == '6months' %}active{% endif %}" data-period="6months">6M</button>
                 <button class="time-btn {% if selected_period == '1year' %}active{% endif %}" data-period="1year">1R</button>
-                <button class="time-btn {% if selected_period == 'all' %}active{% endif %}" data-period="all">MAX</button>
             </div>
         </div>        <div class="chart-controls">
             <div class="chart-type-selector">

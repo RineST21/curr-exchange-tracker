@@ -29,75 +29,8 @@ def init_db():
             db.cursor().executescript(f.read())
         db.commit()
 
-# API for currency rates (example: NBP API - Polish National Bank)
-# Please replace with a more general public API if needed, as NBP provides mainly PLN exchange rates.
-# For a wider range of currencies, consider APIs like exchangerate-api.com or openexchangerates.org (may require API key)
-NBP_API_URL = "http://api.nbp.pl/api/exchangerates/tables/A/?format=json"
-NBP_HISTORICAL_URL = "http://api.nbp.pl/api/exchangerates/tables/A/last/30/?format=json"  # Last 30 days
-
-# NBP Table C for bid/ask rates
-NBP_API_URL_C = "http://api.nbp.pl/api/exchangerates/tables/C/?format=json"
-NBP_HISTORICAL_URL_C = "http://api.nbp.pl/api/exchangerates/tables/C/last/30/?format=json"
-
 # Cryptocurrency API (CoinGecko - free tier)
 CRYPTO_API_URL = "https://api.coingecko.com/api/v3/coins/markets"
-
-def fetch_currency_rates():
-    try:
-        response = requests.get(NBP_API_URL)
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        rates_data = response.json()
-        if rates_data and isinstance(rates_data, list) and rates_data[0].get('rates'):
-            return rates_data[0]['rates'], rates_data[0].get('effectiveDate')
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching currency rates: {e}")
-    return None, None
-
-def fetch_currency_rates_with_bid_ask():
-    try:
-        response = requests.get(NBP_API_URL_C)
-        response.raise_for_status()
-        rates_data = response.json()
-        if rates_data and isinstance(rates_data, list) and rates_data[0].get('rates'):
-            return rates_data[0]['rates'], rates_data[0].get('effectiveDate')
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching currency rates (Table C): {e}")
-    return None, None
-
-def fetch_historical_currency_rates(days=30):
-    """Fetch historical currency rates for the last 'days' days"""
-    try:
-        url = f"http://api.nbp.pl/api/exchangerates/tables/A/last/{days}/?format=json"
-        response = requests.get(url)
-        response.raise_for_status()
-        historical_data = response.json()
-        
-        all_rates = []
-        if historical_data and isinstance(historical_data, list):
-            for day_data in historical_data:
-                if day_data.get('rates') and day_data.get('effectiveDate'):
-                    all_rates.append((day_data['rates'], day_data['effectiveDate']))
-        
-        return all_rates
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching historical currency rates: {e}")
-    return []
-
-def fetch_historical_currency_rates_with_bid_ask(days=30):
-    try:
-        url = f"http://api.nbp.pl/api/exchangerates/tables/C/last/{days}/?format=json"
-        response = requests.get(url)
-        response.raise_for_status()
-        historical_data = response.json()
-        all_rates = []
-        if historical_data and isinstance(historical_data, list):
-            for day_data in historical_data:
-                if day_data.get('rates') and day_data.get('effectiveDate'):
-                    all_rates.append((day_data['rates'], day_data['effectiveDate']))
-        return all_rates
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching historical currency rates (Table C): {e}")
-    return []
 
 def fetch_nbp_data_by_date_range(start_date, end_date, table='C'):
     """Fetch NBP data for a specific date range using Table C (for bid/ask) or A (for mid)"""
@@ -143,55 +76,6 @@ def fetch_nbp_data_by_date_range(start_date, end_date, table='C'):
             second_half = fetch_nbp_data_by_date_range(mid_date + timedelta(days=1), end_date, table)
             return (first_half or []) + (second_half or [])
     return []
-
-def store_rates(rates, effective_date):
-    if not rates or not effective_date:
-        return
-
-    db = get_db()
-    cursor = db.cursor()
-    # Check if data for this date already exists
-    cursor.execute("SELECT 1 FROM rates WHERE date = ?", (effective_date,))
-    if cursor.fetchone():
-        print(f"Data for {effective_date} already exists. Skipping insertion.")
-        return
-
-    for rate in rates:
-        try:
-            cursor.execute('''
-                INSERT INTO rates (currency_code, currency_name, mid_rate, date)
-                VALUES (?, ?, ?, ?)
-            ''', (rate['code'], rate['currency'], rate['mid'], effective_date))
-        except sqlite3.IntegrityError:
-            print(f"Record for {rate['code']} on {effective_date} might already exist or other integrity constraint failed.")
-        except KeyError as e:
-            print(f"Missing key in rate data: {e} - Data: {rate}")
-
-    db.commit()
-    print(f"Successfully stored rates for {effective_date}")
-
-def store_rates_bid_ask(rates, effective_date):
-    if not rates or not effective_date:
-        return
-    db = get_db()
-    cursor = db.cursor()
-    cursor.execute("SELECT 1 FROM rates WHERE date = ?", (effective_date,))
-    if cursor.fetchone():
-        print(f"Data for {effective_date} already exists. Skipping insertion.")
-        return
-    for rate in rates:
-        try:
-            cursor.execute('''
-                INSERT INTO rates (currency_code, currency_name, mid_rate, bid_rate, ask_rate, date)
-                VALUES (?, ?, NULL, ?, ?, ?)
-            ''', (rate['code'], rate['currency'], rate['bid'], rate['ask'], effective_date))
-        except sqlite3.IntegrityError:
-            print(f"Record for {rate['code']} on {effective_date} might already exist or other integrity constraint failed.")
-        except KeyError as e:
-            print(f"Missing key in rate data: {e} - Data: {rate}")
-    
-    db.commit()
-    print(f"Successfully stored bid/ask rates for {effective_date}")
 
 def check_and_fetch_missing_data():
     """Check if we have enough data and fetch only missing data if needed"""
@@ -416,17 +300,14 @@ def index():
     selected_period = request.args.get('period', '1month')  # Default to 1 month
     
     if selected_currency not in popular_currencies:
-        selected_currency = popular_currencies[0] # Fallback if invalid currency is provided
-      # Define time periods
+        selected_currency = popular_currencies[0] # Fallback if invalid currency is provided    # Define time periods
     time_periods = {
         '7days': '7 Dni',
         '1month': '1 Miesiąc', 
         '6months': '6 Miesięcy',
-        '1year': '1 Rok',
-        'all': 'Wszystkie dane'
+        '1year': '1 Rok'
     }
-    
-    # Calculate date filter based on selected period
+      # Calculate date filter based on selected period
     today = datetime.now().date()
     date_filter_start = None
     date_filter_end = today
@@ -439,27 +320,22 @@ def index():
         date_filter_start = today - timedelta(days=30)
     elif selected_period == '6months':
         date_filter_start = today - timedelta(days=180)
-    elif selected_period == 'all':
-        date_filter_start = None  # No date filter for all data
-    
-    # Fetch historical data for the selected currency with date filter
+      # Fetch historical data for the selected currency with date filter
     query_params = [selected_currency]
     sql_query = f"""
         SELECT date, mid_rate, bid_rate, ask_rate FROM rates
         WHERE currency_code = ?
     """
-    if date_filter_start and selected_period != 'all':
+    if date_filter_start:
         sql_query += " AND date >= ?"
         query_params.append(date_filter_start.strftime('%Y-%m-%d'))
     
     sql_query += " ORDER BY date ASC"
     
     cursor.execute(sql_query, tuple(query_params))
-    rates_history = cursor.fetchall()
-
-    # Fetch the first rate of the period for change calculation if not 'all'
+    rates_history = cursor.fetchall()    # Fetch the first rate of the period for change calculation
     first_rate_of_period = None
-    if rates_history and selected_period != 'all' and date_filter_start:
+    if rates_history and date_filter_start:
         cursor.execute("""
             SELECT mid_rate FROM rates
             WHERE currency_code = ? AND date = (
