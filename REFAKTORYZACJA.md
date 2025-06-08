@@ -108,12 +108,4 @@ from models import CurrencyRatesModel
 ✅ **Czysta architektura:** Jasne granice między warstwami  
 ✅ **Łatwość rozwoju:** Możliwość niezależnego rozwijania każdej warstwy  
 
-## Pliki po refaktoryzacji
-
-1. **`models.py`** (115 linii) - Warstwa danych
-2. **`services.py`** (167 linii) - Warstwa logiki biznesowej  
-3. **`app.py`** (120 linii) - Warstwa prezentacji
-
-**Całkowita liczba linii:** ~400 linii (vs 700+ w oryginalnym pliku)
-
 Ta refaktoryzacja spełnia wszystkie wymagania strukturalne zadania, zachowując jednocześnie pełną funkcjonalność aplikacji.
