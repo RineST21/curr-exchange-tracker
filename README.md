@@ -15,6 +15,7 @@ Zaawansowana aplikacja webowa Flask do monitorowania i analizowania kursów walu
 - **Automatyczne Zarządzanie Danymi** - Inteligentne pobieranie i przechowywanie brakujących danych historycznych
 - **Wybór Okresów Czasowych** - 7 dni, 1 miesiąc, 6 miesięcy, 1 rok lub wszystkie dostępne dane
 - **Zewnętrzne Style CSS** - Czysta, łatwa w utrzymaniu architektura kodu
+- **Architektura 3-warstwowa** - Nowoczesny wzorzec wielowarstwowy dla lepszej utrzymywalności i skalowalności
 
 ## Instalacja
 
@@ -97,9 +98,15 @@ GET /check_and_fetch_data
 
 ## Struktura Projektu
 
+### Architektura 3-warstwowa
+
+Aplikacja została zaprojektowana zgodnie z wzorcem architektury wielowarstwowej (Multi-tier Architecture):
+
 ```
 curr-exchange-tracker/
-├── app.py                # Główna aplikacja Flask
+├── app.py                # Warstwa Prezentacji (Presentation Layer)
+├── services.py           # Warstwa Logiki Biznesowej (Business Logic Layer)
+├── models.py             # Warstwa Danych (Data Layer)
 ├── schema.sql            # Schemat bazy danych
 ├── requirements.txt      # Zależności Python
 ├── check_db.py           # Skrypt do sprawdzania zawartości bazy danych
@@ -110,8 +117,29 @@ curr-exchange-tracker/
 │   ├── index.html        # Strona kursów walut
 │   └── crypto.html       # Strona kryptowalut
 ├── README.md             # Dokumentacja polska
-└── README_eng.md         # Dokumentacja angielska
+├── README_eng.md         # Dokumentacja angielska
+└── REFAKTORYZACJA.md     # Szczegóły architektury 3-warstwowej
 ```
+
+### Warstwy Aplikacji
+
+1. **Warstwa Prezentacji (`app.py`)**
+   - Routing Flask i obsługa HTTP
+   - Renderowanie szablonów HTML
+   - Zwracanie odpowiedzi JSON
+   - Interfejs użytkownika
+
+2. **Warstwa Logiki Biznesowej (`services.py`)**
+   - Integracje z zewnętrznymi API (NBP, CoinGecko)
+   - Przetwarzanie i transformacja danych
+   - Logika aplikacji i kalkulacje
+   - Zarządzanie danymi walutowymi
+
+3. **Warstwa Danych (`models.py`)**
+   - Operacje na bazie danych SQLite
+   - Modele danych i operacje CRUD
+   - Zarządzanie połączeniami z bazą
+   - Abstrakcja dostępu do danych
 
 ## Obsługiwane Waluty
 
@@ -124,12 +152,13 @@ Aplikacja obsługuje wszystkie waluty dostępne w API NBP, z domyślnym fokusem 
 
 ## Stos Technologiczny
 
-- **Backend:** Flask (Python)
+- **Backend:** Flask (Python) z architekturą 3-warstwową
 - **Frontend:** HTML5, CSS3, JavaScript
 - **Wykresy:** Plotly.js
 - **Baza danych:** SQLite
 - **API:** NBP Web API, CoinGecko API
 - **Styling:** CSS z responsywnym designem
+- **Architektura:** Wzorzec wielowarstwowy (Presentation, Business Logic, Data Layer)
 
 ## Integracja z API NBP
 
@@ -144,7 +173,14 @@ API NBP jest darmowe i nie wymaga klucza dostępu. Dostarcza aktualne i historyc
 
 ### Zmiana Wyświetlanych Walut
 
-Edytuj zmienną `popular_currencies` w funkcji `index()` w pliku `app.py`:
+Edytuj stałą `REQUIRED_CURRENCIES` w klasie `CurrencyDataService` w pliku `services.py`:
+
+```python
+class CurrencyDataService:
+    REQUIRED_CURRENCIES = ['USD', 'EUR', 'GBP', 'CHF', 'JPY']
+```
+
+Lub modyfikuj zmienną `popular_currencies` w funkcji `index()` w pliku `app.py`:
 
 ```python
 popular_currencies = ('USD', 'EUR', 'GBP', 'CHF', 'JPY')  
@@ -170,10 +206,12 @@ Modyfikuj CSS w `static/style.css` lub szablony HTML w katalogu `templates/`.
 
 ## Funkcje Zaawansowane
 
+- **Architektura 3-warstwowa** - Czysta separacja warstw prezentacji, logiki biznesowej i danych
 - **Automatyczne Zarządzanie Danymi** - Aplikacja sprawdza dostępność danych i automatycznie pobiera brakujące informacje
 - **Obsługa Dużych Zakresów Dat** - Inteligentne dzielenie zapytań API na mniejsze części
 - **Obsługa Błędów** - Zabezpieczenia przed błędami API i bazą danych
 - **Responsywny Design** - Interfejs dostosowany do różnych rozmiarów ekranów
+- **Modułowa Struktura** - Łatwe testowanie i rozwijanie poszczególnych komponentów
 
 ## Rozwiązywanie Problemów
 

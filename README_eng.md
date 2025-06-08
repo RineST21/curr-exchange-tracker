@@ -15,6 +15,7 @@ An advanced Flask web application for monitoring and analyzing currency exchange
 - **Automatic Data Management** - Smart fetching and storage of missing historical data
 - **Time Period Selection** - 7 days, 1 month, 6 months, 1 year, or all available data
 - **External CSS Styling** - Clean, maintainable code architecture
+- **3-Tier Architecture** - Modern multi-layer application design for better maintainability and scalability
 
 ## Installation
 
@@ -97,11 +98,18 @@ GET /check_and_fetch_data
 
 ## Project Structure
 
+### 3-Tier Architecture
+
+The application is designed following the Multi-tier Architecture pattern:
+
 ```
 curr-exchange-tracker/
-├── app.py                # Main Flask application
+├── app.py                # Presentation Layer
+├── services.py           # Business Logic Layer
+├── models.py             # Data Layer
 ├── schema.sql            # Database schema
 ├── requirements.txt      # Python dependencies
+├── check_db.py           # Database content checking script
 ├── currency_rates.db     # SQLite database (auto-created)
 ├── static/
 │   └── style.css         # External CSS styles
@@ -109,8 +117,29 @@ curr-exchange-tracker/
 │   ├── index.html        # Currency exchange rates page
 │   └── crypto.html       # Cryptocurrency page
 ├── README.md             # Polish documentation
-└── README_eng.md         # English documentation
+├── README_eng.md         # English documentation
+└── REFAKTORYZACJA.md     # 3-tier architecture details (Polish)
 ```
+
+### Application Layers
+
+1. **Presentation Layer (`app.py`)**
+   - Flask routing and HTTP handling
+   - HTML template rendering
+   - JSON response generation
+   - User interface management
+
+2. **Business Logic Layer (`services.py`)**
+   - External API integrations (NBP, CoinGecko)
+   - Data processing and transformation
+   - Application logic and calculations
+   - Currency data management
+
+3. **Data Layer (`models.py`)**
+   - SQLite database operations
+   - Data models and CRUD operations
+   - Database connection management
+   - Data access abstraction
 
 ## Supported Currencies
 
@@ -123,12 +152,13 @@ The application supports all currencies available in the NBP API, with a default
 
 ## Technology Stack
 
-- **Backend:** Flask (Python)
+- **Backend:** Flask (Python) with 3-tier architecture
 - **Frontend:** HTML5, CSS3, JavaScript
 - **Charts:** Plotly.js
 - **Database:** SQLite
 - **APIs:** NBP Web API, CoinGecko API
 - **Styling:** CSS with responsive design
+- **Architecture:** Multi-tier pattern (Presentation, Business Logic, Data Layer)
 
 ## NBP API Integration
 
@@ -143,7 +173,14 @@ The NBP API is free and does not require an access key. It provides current and 
 
 ### Changing Displayed Currencies
 
-Edit the `popular_currencies` variable in the `index()` function in `app.py`:
+Edit the `REQUIRED_CURRENCIES` constant in the `CurrencyDataService` class in `services.py`:
+
+```python
+class CurrencyDataService:
+    REQUIRED_CURRENCIES = ['USD', 'EUR', 'GBP', 'CHF', 'JPY']
+```
+
+Or modify the `popular_currencies` variable in the `index()` function in `app.py`:
 
 ```python
 popular_currencies = ('USD', 'EUR', 'GBP', 'CHF', 'JPY') 
@@ -169,10 +206,12 @@ Modify the CSS in `static/style.css` or HTML templates in the `templates/` direc
 
 ## Advanced Features
 
+- **3-Tier Architecture** - Clean separation of presentation, business logic, and data layers
 - **Automatic Data Management** - The application checks data availability and automatically downloads missing information
 - **Large Date Range Handling** - Intelligent splitting of API queries into smaller parts
 - **Error Handling** - Safeguards against API and database errors
 - **Responsive Design** - Interface adapted to different screen sizes
+- **Modular Structure** - Easy testing and development of individual components
 
 ## Troubleshooting
 
