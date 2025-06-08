@@ -132,8 +132,12 @@
             <div id="chart" style="height: 500px;"></div>
             {% endif %}
         {% endif %}
-    </div>    <div class="footer">
-        Dane pochodzą z API NBP. Wykres przedstawia historyczne kursy walut w stosunku do PLN.
+        
+        <div class="footer">
+            <p>💰 Dane pochodzą z <a href="https://api.nbp.pl/" target="_blank" rel="noopener">API NBP</a></p>
+            <p>📈 Wykres przedstawia historyczne kursy walut w stosunku do PLN</p>
+            <p>🕒 Automatyczne odświeżanie co 5 minut</p>
+        </div>
     </div><!-- Load Plotly with better error handling and fallback -->
     <script>
         // Helper function to load script properly
